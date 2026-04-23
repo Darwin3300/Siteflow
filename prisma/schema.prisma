@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  CONTRACTOR
+}
+
+enum Category {
+  GENERAL
+  ELECTRICAL
+  FLOORING
+  PAINTING
+}
+
+enum Status {
+  PENDING
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(CONTRACTOR)
+  createdAt DateTime @default(now())
+
+  siteLogs SiteLog[]
+
+  @@map("users")
+}
+
+model SiteLog {
+  id        String   @id @default(cuid())
+  text      String
+  category  Category @default(GENERAL)
+  imageUrl  String?
+  status    Status   @default(PENDING)
+  userId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("site_logs")
+}
